@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="country_codes_entries">
+        <item>+1 (USA)</item>
+        <item>+44 (UK)</item>
+        <item>+91 (India)</item>
+        <item>+86 (China)</item>
+        <item>+81 (Japan)</item>
+        <item>+49 (Germany)</item>
+        <item>+33 (France)</item>
+        <item>+7 (Russia)</item>
+        <item>+61 (Australia)</item>
+    </string-array>
+
+    <string-array name="country_codes_values">
+        <item>+1</item>
+        <item>+44</item>
+        <item>+91</item>
+        <item>+86</item>
+        <item>+81</item>
+        <item>+49</item>
+        <item>+33</item>
+        <item>+7</item>
+        <item>+61</item>
+    </string-array>
+
+    <string-array name="default_blocked_countries" translatable="false">
+        <!-- Empty by default -->
+    </string-array>
+</resources>

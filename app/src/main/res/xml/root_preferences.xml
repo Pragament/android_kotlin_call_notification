@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory app:title="Notification Settings">
+        <Preference
+            app:key="notification_sound"
+            app:title="Notification tone"
+            app:summary="Select notification sound"/>
+
+        <SeekBarPreference
+            app:key="notification_volume"
+            app:title="Notification volume"
+            app:defaultValue="80"
+            android:max="100"
+            app:showSeekBarValue="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Call Filtering">
+        <MultiSelectListPreference
+            app:key="blocked_country_codes"
+            app:title="Block notifications from"
+            app:summary="Select country codes to block"
+            app:defaultValue="@array/default_blocked_countries"
+            app:entries="@array/country_codes_entries"
+            app:entryValues="@array/country_codes_values"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="System Settings">
+        <Preference
+            app:key="dnd_settings"
+            app:title="Do Not Disturb settings"
+            app:summary="Configure notification access"/>
+    </PreferenceCategory>
+</PreferenceScreen>
