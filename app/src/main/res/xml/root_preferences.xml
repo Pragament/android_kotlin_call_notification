@@ -16,13 +16,13 @@
     </PreferenceCategory>
 
     <PreferenceCategory app:title="Call Filtering">
-        <MultiSelectListPreference
-            app:key="blocked_country_codes"
-            app:title="Block notifications from"
-            app:summary="Select country codes to block"
-            app:defaultValue="@array/default_blocked_countries"
-            app:entries="@array/country_codes_entries"
-            app:entryValues="@array/country_codes_values"/>
+        <EditTextPreference
+            app:key="blocked_area_codes"
+            app:title="Block area codes"
+            app:summary="Enter comma-separated area codes (e.g., +1415,+1212)"
+            app:dialogTitle="Enter area codes to block"
+            app:dialogMessage="Add comma-separated values (e.g., +1415,+1212)"
+            app:defaultValue=""/>
     </PreferenceCategory>
 
     <PreferenceCategory app:title="System Settings">

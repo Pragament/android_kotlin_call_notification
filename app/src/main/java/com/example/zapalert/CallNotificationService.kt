@@ -152,16 +152,19 @@ class CallNotificationService : Service() {
     private fun handleIncomingCall(phoneNumber: String) {
         Log.d(TAG, "Handling incoming call from $phoneNumber")
         try {
-            val blockedCountryCodes = sharedPreferences.getStringSet("blocked_country_codes", emptySet()) ?: emptySet()
+            val blockedAreaCodes = sharedPreferences.getString("blocked_area_codes", "") ?: ""
+            val blockedCodesList = blockedAreaCodes.split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
 
-            if (blockedCountryCodes.none { phoneNumber.startsWith(it) }) {
+            if (blockedCodesList.none { phoneNumber.startsWith(it) }) {
                 Log.d(TAG, "Call not blocked, showing notification")
                 showCallNotification(phoneNumber)
                 ensureVolumeIsUp()
                 playRingtone()
                 vibrate()
             } else {
-                Log.d(TAG, "Call blocked by country code")
+                Log.d(TAG, "Call blocked by area code")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to handle call", e)

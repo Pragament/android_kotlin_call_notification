@@ -9,6 +9,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.EditTextPreference
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -27,28 +28,25 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
-        // In SettingsActivity.kt, update the ringtone picker:
         private val ringtonePickerLauncher = registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri: Uri? ->
             uri?.let {
-                // Take persistent permission for the URI
                 try {
                     requireContext().contentResolver.takePersistableUriPermission(
                         it,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
 
-                    // Save the URI
                     preferenceManager.sharedPreferences?.edit()
                         ?.putString("notification_sound", it.toString())
                         ?.apply()
 
-                    // Verify the URI was saved
                     Log.d("Settings", "Saved sound URI: $it")
                     updateSoundSummary()
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Failed to save sound", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Failed to save sound",
+                        Toast.LENGTH_SHORT).show()
                     Log.e("Settings", "Error saving sound", e)
                 }
             }
@@ -62,7 +60,25 @@ class SettingsActivity : AppCompatActivity() {
                 true
             }
 
+            val blockedAreaCodesPref = findPreference<EditTextPreference>("blocked_area_codes")
+            blockedAreaCodesPref?.setOnPreferenceChangeListener { _, newValue ->
+                updateBlockedAreaCodesSummary(newValue.toString())
+                true
+            }
+
             updateSoundSummary()
+            updateBlockedAreaCodesSummary(
+                preferenceManager.sharedPreferences?.getString("blocked_area_codes", "") ?: ""
+            )
+        }
+
+        private fun updateBlockedAreaCodesSummary(areaCodes: String) {
+            val summary = if (areaCodes.isNotEmpty()) {
+                "Blocking: ${areaCodes.replace(",", ", ")}"
+            } else {
+                "No area codes blocked"
+            }
+            findPreference<Preference>("blocked_area_codes")?.summary = summary
         }
 
         private fun updateSoundSummary() {
