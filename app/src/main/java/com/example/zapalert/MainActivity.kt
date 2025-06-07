@@ -16,6 +16,36 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
+    private val requiredPermissions = mutableListOf<String>().apply {
+        add(Manifest.permission.READ_PHONE_STATE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            add(Manifest.permission.READ_CALL_LOG)
+        }
+    }
+
+    private var currentPermissionIndex = 0
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "${requiredPermissions[currentPermissionIndex]} granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "${requiredPermissions[currentPermissionIndex]} denied", Toast.LENGTH_SHORT).show()
+        }
+
+        currentPermissionIndex++
+        if (currentPermissionIndex < requiredPermissions.size) {
+            requestNextPermission()
+        } else {
+            // All permissions requested, start service
+            startService()
+            checkNotificationPolicyAccess()
+        }
+    }
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -23,6 +53,30 @@ class MainActivity : AppCompatActivity() {
             startService()
         } else {
             Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestNotificationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "Notification permission granted",
+                Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Notification permission denied",
+                Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private val requestCallLogPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Toast.makeText(this, "Call logs permission granted",
+                Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Call logs permission denied",
+                Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -36,7 +90,32 @@ class MainActivity : AppCompatActivity() {
         }
 
         checkAndRequestPermissions()
-        checkNotificationPolicyAccess()
+    }
+
+    private fun checkAndRequestPermissions() {
+        currentPermissionIndex = 0
+        if (requiredPermissions.isNotEmpty()) {
+            requestNextPermission()
+        } else {
+            startService()
+            checkNotificationPolicyAccess()
+        }
+    }
+
+    private fun requestNextPermission() {
+        val permission = requiredPermissions[currentPermissionIndex]
+        if (ContextCompat.checkSelfPermission(this,
+                permission) == PackageManager.PERMISSION_GRANTED) {
+            currentPermissionIndex++
+            if (currentPermissionIndex < requiredPermissions.size) {
+                requestNextPermission()
+            } else {
+                startService()
+                checkNotificationPolicyAccess()
+            }
+        } else {
+            permissionLauncher.launch(permission)
+        }
     }
 
     private fun checkNotificationPolicyAccess() {
@@ -52,32 +131,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAndRequestPermissions() {
-        when {
-            ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_PHONE_STATE
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                startService()
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
-            }
-        }
-    }
-
     private fun startService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(Intent(this, CallNotificationService::class.java))
         } else {
             startService(Intent(this, CallNotificationService::class.java))
-        }
-
-        // Check notification policy access
-        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
-        if (!notificationManager.isNotificationPolicyAccessGranted) {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-            startActivity(intent)
         }
     }
 }
