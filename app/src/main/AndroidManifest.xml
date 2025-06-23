@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:requestLegacyExternalStorage="true"
@@ -54,6 +55,7 @@
             android:exported="false"
             android:foregroundServiceType="phoneCall"
             android:stopWithTask="false" />
+
     </application>
 
 </manifest>
