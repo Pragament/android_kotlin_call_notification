@@ -10,9 +10,11 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import android.provider.Settings
+import android.widget.Switch
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -89,7 +91,26 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
+        val monitorSwitch: Switch = findViewById(R.id.monitorSwitch)
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val isEnabled = prefs.getBoolean("call_monitor_enabled", false)
+        monitorSwitch.isChecked = isEnabled
+
+        monitorSwitch.setOnCheckedChangeListener { _, isChecked ->
+            prefs.edit().putBoolean("call_monitor_enabled", isChecked).apply()
+            if (isChecked) {
+                checkAndRequestPermissions()
+            } else {
+                stopService(Intent(this, CallNotificationService::class.java))
+                Toast.makeText(this, "Service stopped", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         checkAndRequestPermissions()
+
+        if (isEnabled) {
+            startService()
+        }
     }
 
     private fun checkAndRequestPermissions() {
@@ -138,4 +159,5 @@ class MainActivity : AppCompatActivity() {
             startService(Intent(this, CallNotificationService::class.java))
         }
     }
+
 }
